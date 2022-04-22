@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>CesiumJS</title>
+	
+    <script src="src/Cesium/Cesium.js"></script>
+    <link href="src/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="src/jquery/jquery-3.6.0.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
+
+    <link href="style.css" rel="stylesheet">
+	
+    <script>
+        let viewer;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            //mainPage();
+
+            viewer = initMap();
+            setEventHandler();
+
+            let handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+            handler.setInputAction(function (movement) {
+                const cartesian = viewer.scene.pickPosition(movement.endPosition);
+                if (cartesian) {
+                    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+                    const longitudeString = Cesium.Math.toDegrees(cartographic.longitude);
+                    const latitudeString = Cesium.Math.toDegrees(cartographic.latitude);
+
+                    document.querySelector('#lonlat').innerText = longitudeString + ', ' + latitudeString;
+                }
+            }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        });
+    </script>
+    
+    <script src="src/js/common.js"></script>
+    <script src="src/js/map.js"></script>
+    <script src="src/js/handler.js"></script>
+    <script src="src/js/warp.js"></script>
+    <script src="src/js/sun.js"></script>
+</head>
+<body>
+    <!-- 우주 -->
+    <!-- <div id="mainPage">
+        Enter
+    </div> -->
+
+    <!-- <div id="mainPage">
+        <div id="line1">
+            Hello, Stranger!
+        </div>
+        <div id="line2">
+            Let's go to my Earth.
+        </div>
+        <div id="line3">
+            Yes!
+        </div>
+    </div> -->
+
+    <div id="mapContainer"></div>
+
+    <div id="topMenu">
+        <ul>
+            <li><a href="#" class="topMenuBtn" id="aboutMe">About Me</a></li>
+            <li><a href="#" class="topMenuBtn" id="lineOfSight">Line Of Sight</a></li>
+            <li><a href="#" class="topMenuBtn" id="threatDome">Threat Dome</a></li>
+            <li><a href="#" class="topMenuBtn" id="sun">Sun</a></li>
+            <li><a href="#" class="topMenuBtn" id="geometryStyle">Geometry Style</a></li>
+            <li><a href="#" class="topMenuBtn" id="contourMap">Contour Map</a></li>
+            <li><a href="#" class="topMenuBtn" id="underground">Underground</a></li>
+            <li><a href="#" class="topMenuBtn" id="loadLayer">Load Layer</a></li>
+            <li><a href="#" class="topMenuBtn" id="label">Label</a></li>
+        </ul>
+
+        <div class="controlMenu" id="sunControlMenu">
+            <div style="margin-bottom:15px;">
+                <input type="date" class="date" id="sunDate" min="1900-01-01" max="2099-12-31">
+                <select id="sunSpeed">
+                    <option selected value="1">재생속도 1배</option>
+                    <option value="2">재생속도 2배</option>
+                    <option value="4">재생속도 4배</option>
+                    <option value="8">재생속도 8배</option>
+                    <option value="16">재생속도 16배</option>
+                </select>
+            </div>
+            <div style="margin-bottom:8px;">
+                <input type="checkbox" id="keepPlay"><span id="keepPlayTxt">재생유지</span>
+                <span id="sunTime"></span>
+            </div>
+
+            <div>
+                <input type="range" min="0" max="86399" value="" id="sunSlider">
+                <span id="sunPlay">▶</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="position: absolute; right: 1%; bottom: 1%;">
+        <label id="lonlat" style="background: #00000099; color: white;"></label>
+    </div>
+</body>
+</html>
