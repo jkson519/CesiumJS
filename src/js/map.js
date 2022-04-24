@@ -1,5 +1,5 @@
 function initMap() {
-    // viewer 세팅
+    //// viewer 세팅
     let viewer = new Cesium.Viewer("mapContainer", {
         terrainProvider: Cesium.createWorldTerrain({
             requestVertexNormals : true
@@ -10,6 +10,7 @@ function initMap() {
         infoBox: false,
         selectionIndicator: false,
         fullscreenButton: false,
+        shouldAnimate: false,
         // skyBox: new Cesium.SkyBox({
         //     sources: {
         //         positiveX: "../../src/images/skybox/px.png",
@@ -22,118 +23,79 @@ function initMap() {
         // })
     });
 
-    // 기본 시간 설정
-    viewer.clock.currentTime = new Cesium.JulianDate.fromIso8601("2021-09-25T14:00:00+09:00");
-
-    // 카메라 시작 위치 설정
-    //// 우주
-    // viewer.camera.setView({
-    //     destination: new Cesium.Cartesian3(-23826840410.039978, 31703956683.09707, 30459446292.082268),
-    //     orientation: {
-    //         direction: new Cesium.Cartesian3(0.4752851565279563, -0.6324136878984561, -0.6116836987715714),
-    //         up: new Cesium.Cartesian3(0.3674924661813898, -0.4889849022646707, 0.7911024286760411),
-    //     },
-    // });
-    // warp(viewer);
-
-    //// 여의도
-    let car = new Cesium.Cartesian3.fromDegrees(126.92704944513494, 37.52247476835369);
-    let dir = new Cesium.Cartesian3(0.2914709827634589, -0.9304513801656011, 0.22204705662276064);
-    viewer.camera.setView({
-        destination: positionFromLook(car, dir, 3000),
-        orientation: {
-            direction: new Cesium.Cartesian3(0.2914709827634589, -0.9304513801656011, 0.22204705662276064),
-            up: new Cesium.Cartesian3(-0.377071322777594, 0.10157501552320726, 0.9205974873744854),
-        },
-        duration: 5.0,
-    });
-
-    // OpenStreetMap 3D 건물 레이어 로드
+    //// 기본 시간 설정
+    viewer.clock.currentTime = new Cesium.JulianDate.fromIso8601("2021-09-01T14:00:00+09:00");
+    viewer.defaultScenePostUpdate = viewer.scene.postUpdate;
+    //// OpenStreetMap 3D 건물 레이어 로드
     let tileset = Cesium.createOsmBuildings();
     tileset.readyPromise.then(function (tileset) {
         viewer.scene.primitives.add(tileset);
     });
 
-    // 지도 마우스 조작 방식 변경
+    //// 지도 마우스 조작 방식 변경
     viewer.scene.screenSpaceCameraController.tiltEventTypes = [Cesium.CameraEventType.RIGHT_DRAG];
     viewer.scene.screenSpaceCameraController.zoomEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG, Cesium.CameraEventType.WHEEL, Cesium.CameraEventType.PINCH];
     viewer.scene.screenSpaceCameraController.rotateEventTypes = [Cesium.CameraEventType.LEFT_DRAG];
 
-    // viewer.scene.globe.depthTestAgainstTerrain = true;
-
-    // 지구 구체 색상 검은색으로 변경 (기본 파란색)
+    //// 지구 구체 색상 검은색으로 변경 (기본 파란색)
     viewer.scene.globe.baseColor = new Cesium.Color(0, 0, 0, 1);
 
-    // 하늘 밝기 조절 / default 0
+    //// 하늘 밝기 조절 / default 0
     viewer.scene.skyAtmosphere.brightnessShift = 0.3;
 
-    // 안개 농도 조절 / default 0.0002 / 0에 가까워질수록 투명
+    //// 안개 농도 조절 / default 0.0002 / 0에 가까워질수록 투명
     viewer.scene.fog.density = 0.0001;
 
+    //// 불필요한 Cesium 기본 메뉴 미표시
+    document.querySelector(".cesium-viewer-bottom").style.display = "none";
+    document.querySelector(".cesium-viewer-toolbar").style.display = "none";
 
-    // 불필요한 Cesium 기본 메뉴 미표시
-    document.querySelector('.cesium-viewer-bottom').style.display = 'none';
-    document.querySelector('.cesium-viewer-toolbar').style.display = 'none';
+    //// 기본 카메라 저장
+    viewer.defaultCamera = viewer.camera;
+
+    //// 지구 자전 카메라 세팅
+    // function icrf(scene, time) {
+    //     if (scene.mode !== Cesium.SceneMode.SCENE3D) {
+    //         return;
+    //     }
+    
+    //     let icrfToFixed = Cesium.Transforms.computeIcrfToFixedMatrix(time);
+    //     if (Cesium.defined(icrfToFixed)) {
+    //         let camera = viewer.camera;
+    //         let offset = Cesium.Cartesian3.clone(camera.position);
+    //         let transform = Cesium.Matrix4.fromRotationTranslation(
+    //             icrfToFixed
+    //         );
+    //         camera.lookAtTransform(transform, offset);
+    //     }
+    // }
+    viewer.scene.postUpdate.addEventListener(icrf);
+    viewer.clock.multiplier = 4800;
+    viewer.clock.shouldAnimate = true;
+    viewer.scene.globe.enableLighting = true;
+
+    //// 변경된 카메라 저장
+    viewer.changedCamera = viewer.camera;
+
+    //// 초기 화면 마우스 이벤트 방지
+    viewer.scene.screenSpaceCameraController.enableZoom  = false;
+    // viewer.scene.screenSpaceCameraController.enableInputs = false;
 
     return viewer;
 }
 
-function positionFromLook(cartesian, direction, distance) {
-    let X = cartesian.x - direction.x * distance;
-    let Y = cartesian.y - direction.y * distance;
-    let Z = cartesian.z - direction.z * distance;
+function icrf(scene, time) {
+    if (scene.mode !== Cesium.SceneMode.SCENE3D) {
+        return;
+    }
 
-    return new Cesium.Cartesian3(X, Y, Z);
+    let icrfToFixed = Cesium.Transforms.computeIcrfToFixedMatrix(time);
+    if (Cesium.defined(icrfToFixed)) {
+        let camera = viewer.camera;
+        let offset = Cesium.Cartesian3.clone(camera.position);
+        let transform = Cesium.Matrix4.fromRotationTranslation(
+            icrfToFixed
+        );
+        camera.lookAtTransform(transform, offset);
+    }
 }
-
-function zoomToEarth() {
-    let car = new Cesium.Cartesian3.fromDegrees(126.92704944513494, 37.42647476835369);
-    let dir = new Cesium.Cartesian3(0.4752851565279563, -0.6324136878984561, -0.6116836987715714);
-    viewer.camera.flyTo({
-        destination: positionFromLook(car, dir, 30000),
-        orientation: {
-            direction: new Cesium.Cartesian3(0.4752851565279563, -0.6324136878984561, -0.6116836987715714),
-            up: new Cesium.Cartesian3(0.3674924661813898, -0.4889849022646707, 0.7911024286760411),
-        },
-        duration: 5.0,
-        complete: function () {
-            setTimeout(function () {
-                let car = new Cesium.Cartesian3.fromDegrees(126.92704944513494, 37.52247476835369);
-                let dir = new Cesium.Cartesian3(0.2914709827634589, -0.9304513801656011, 0.22204705662276064);
-                viewer.camera.flyTo({
-                    destination: positionFromLook(car, dir, 3000),
-                    orientation: {
-                        direction: new Cesium.Cartesian3(0.2914709827634589, -0.9304513801656011, 0.22204705662276064),
-                        up: new Cesium.Cartesian3(-0.377071322777594, 0.10157501552320726, 0.9205974873744854),
-                    },
-                    duration: 5.0,
-                    complete: function () {
-                        $('#topMenu').show();
-                        setTimeout(function () {
-                            let tileset = Cesium.createOsmBuildings();
-                            tileset.readyPromise.then(function (tileset) {
-                                viewer.scene.primitives.add(tileset);
-                            });
-                        }, 0);
-                        viewer.scene.render();
-                    }
-                });
-            }, 0);
-            viewer.scene.render();
-        },
-    });
-    viewer.scene.render();
-}
-
-// function zoomToKorea() {
-//     let car = new Cesium.Cartesian3.fromDegrees(126.92704944513494, 37.52647476835369);
-//     let dir = new Cesium.Cartesian3(0.13220323955527702, -0.8350246666281285, 0.5340937273303937);
-//     viewer.camera.flyTo({
-//         destination: positionFromLook(car, dir, 3000),
-//         orientation: {
-//             direction: new Cesium.Cartesian3(0.13220323955527702, -0.8350246666281285, 0.5340937273303937),
-//             up: new Cesium.Cartesian3(-0.4579282815442733, 0.4264248402412264, 0.7800407326461571),
-//         },
-//         duration: 5.0,
-//     });
-// }

@@ -12,54 +12,28 @@
 
     <link href="style.css" rel="stylesheet">
 	
-    <script>
-        let viewer;
-
-        document.addEventListener("DOMContentLoaded", function () {
-            //mainPage();
-
-            viewer = initMap();
-            setEventHandler();
-
-            let handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-            handler.setInputAction(function (movement) {
-                const cartesian = viewer.scene.pickPosition(movement.endPosition);
-                if (cartesian) {
-                    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-                    const longitudeString = Cesium.Math.toDegrees(cartographic.longitude);
-                    const latitudeString = Cesium.Math.toDegrees(cartographic.latitude);
-
-                    document.querySelector('#lonlat').innerText = longitudeString + ', ' + latitudeString;
-                }
-            }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-        });
-    </script>
-    
     <script src="src/js/common.js"></script>
     <script src="src/js/map.js"></script>
     <script src="src/js/handler.js"></script>
-    <script src="src/js/warp.js"></script>
     <script src="src/js/sun.js"></script>
 </head>
 <body>
-    <!-- 우주 -->
-    <!-- <div id="mainPage">
-        Enter
-    </div> -->
-
-    <!-- <div id="mainPage">
-        <div id="line1">
-            Hello, Stranger!
-        </div>
-        <div id="line2">
-            Let's go to my Earth.
-        </div>
-        <div id="line3">
-            Yes!
-        </div>
-    </div> -->
-
     <div id="mapContainer"></div>
+
+    <div id="mainMenu">
+        <div id="greeting">
+            Hello.<br>
+            Welcome to my Earth.
+        </div>
+    
+        <div id="enter">
+            Enter the Earth
+        </div>
+    
+        <div id="aboutMe">
+            About Me
+        </div>
+    </div>
 
     <div id="topMenu">
         <ul>

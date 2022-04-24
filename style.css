@@ -53,18 +53,6 @@ select, input[type="date"] {
 	border: 1px solid #999;
 }
 
-#mainPage {
-	position: absolute;
-	z-index: 30;
-	color: #fff;
-	top: 45%;
-	left: 50%;
-	transform: translateX(-50%);
-	cursor: pointer;
-	font-size: 50px;
-	;
-}
-
 #mapContainer {
 	position: absolute;
 	width: 100%;
@@ -74,20 +62,50 @@ select, input[type="date"] {
 	overflow: hidden;
 }
 
-/* 우주 */
-/* #topMenu {
-	display: none;
+#greeting, #enter, #aboutMe {
 	position: absolute;
-	top: 0%;
-	left: 0%;
-	z-index: 30;
-	width: 100%;
-	min-width:1060px;
-	height: 50px;
-} */
+	color: white;
+	text-align: center;
+	-ms-user-select: none; 
+	-moz-user-select: -moz-none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
 
-/* 여의도 */
+#enter, #aboutMe {
+	opacity: 0.5;
+	font-size: 2.5vw;
+	cursor: pointer;
+}
+
+#greeting {
+	top: 35%;
+	left: 50%;
+	transform: translate(-50%, -35%);
+	font-size: 3vw;
+	cursor: default;
+}
+
+#enter {
+	top: 60%;
+	left: 50%;
+	transform: translate(-50%, -60%);
+}
+
+#aboutMe {
+	top: 70%;
+	left: 50%;
+	transform: translate(-50%, -70%);
+}
+
+#enter:hover, #aboutMe:hover {
+	opacity: 1.0;
+	font-size: 3vw;
+}
+
 #topMenu {
+	display: none;
 	position: absolute;
 	top: 0%;
 	left: 0%;
