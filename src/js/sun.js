@@ -1,23 +1,9 @@
 $(document).ready(function () {
     // 일조 기능 버튼 클릭
     $('#sun').on('click', function () {
-        // 지구로 줌인
-        // let car = new Cesium.Cartesian3.fromDegrees(126.92704944513494, 37.52647476835369);
-        // let dir = new Cesium.Cartesian3(0.4752851565279563, -0.6324136878984561, -0.6116836987715714);
-        // viewer.camera.flyTo({
-        //     destination: positionFromLook(car, dir, 20000),
-        //     orientation: {
-        //         direction: new Cesium.Cartesian3(0.4752851565279563, -0.6324136878984561, -0.6116836987715714),
-        //     up: new Cesium.Cartesian3(0.3674924661813898, -0.4889849022646707, 0.7911024286760411),
-        //     },
-        //     duration: 5.0,
-        //     // complete: doSomething()
-        // });
-        // zoomToEarth();
-
         $(this).toggleClass('on');
         if ($(this).hasClass('on')) {
-            $('#sunControlMenu').show();
+            $('#sunMenu').show();
 
             // date input에 현재 날짜 반영
             let timezoneOffset = new Date().getTimezoneOffset() * 60000;
@@ -32,7 +18,7 @@ $(document).ready(function () {
             // 일조 실행/종료 시 그림자 기능 on
             shadowOnOff(true);
         } else {
-            $('#sunControlMenu').hide();
+            $('#sunMenu').hide();
             
             // 일조 실행/종료 시 그림자 기능 off
             shadowOnOff(false);

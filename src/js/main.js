@@ -1,8 +1,21 @@
 let viewer;
 
 document.addEventListener("DOMContentLoaded", function () {
-    viewer = initMap();
+    viewer = setViewer();
+
+    viewer.scene.globe.enableLighting = true;
+
     earthRotate(true);
+
+    $("#enter").click(function() {
+        $("#mainMenu").hide();
+        isEnter(true, viewer);
+    });
+
+    $("#leave").click(function() {
+        $("#topMenu").hide();
+        isEnter(false, viewer);
+    });
 
     setEventHandler();
 
@@ -17,44 +30,10 @@ document.addEventListener("DOMContentLoaded", function () {
     //         document.querySelector('#lonlat').innerText = longitudeString + ', ' + latitudeString;
     //     }
     // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-    $("#enter").click(function() {
-        $("#mainMenu").hide();
-        viewer.clock.shouldAnimate = false;
-        viewer.clock.currentTime = new Cesium.JulianDate.fromIso8601("2021-09-01T14:00:00+09:00");
-        viewer.scene.globe.enableLighting = false;
-        viewer.scene.screenSpaceCameraController.enableZoom  = true;
-        viewer.scene.postUpdate.removeEventListener(icrf);
-        viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-        enterTheEarth();
-    });
-
-    $("#leave").click(function() {
-        let p = viewer.camera.position;
-        let cartographic = Cesium.Cartographic.fromCartesian(p);
-        lon = Cesium.Math.toDegrees(cartographic.longitude);
-        lat = Cesium.Math.toDegrees(cartographic.latitude);
-
-        viewer.camera.flyTo({
-            destination: new Cesium.Cartesian3.fromDegrees(lon, lat, 27128595.79176651),
-            duration: 2.5,
-            complete: showMainMenu
-        });
-        function showMainMenu() {
-            $("#mainMenu").show();
-            viewer.clock.shouldAnimate = true;
-        }
-
-        viewer.scene.primitives.removeAll();
-
-        $("#topMenu").hide();
-
-        earthRotate(false);
-    });
 });
 
-//////// viewer 세팅
-function initMap() {
+//////// viewer 설정
+function setViewer() {
     let viewer = new Cesium.Viewer("mapContainer", {
         terrainProvider: Cesium.createWorldTerrain({
             requestVertexNormals : true
@@ -86,7 +65,43 @@ function initMap() {
     return viewer;
 }
 
-//////// 메인 화면 지구 자전
+//////// 메인화면에서 지구로 이동
+function isEnter(bCheck, viewer) {
+    earthRotate(!bCheck);
+
+    let destination;
+    if (bCheck) {
+        destination = new Cesium.Cartesian3.fromDegrees(126.92506486721677, 37.525008965586515, 4000);
+    } else {
+        let p = viewer.camera.position;
+        let cartographic = Cesium.Cartographic.fromCartesian(p);
+        lon = Cesium.Math.toDegrees(cartographic.longitude);
+        lat = Cesium.Math.toDegrees(cartographic.latitude);
+        destination = new Cesium.Cartesian3.fromDegrees(lon, lat, 27128595.79176651);
+        // destination = new Cesium.Cartesian3.fromDegrees(170.1490130006724, 35.25254241869142, 27128595.79176651);
+    }
+
+    viewer.camera.flyTo({
+        destination: destination,
+        duration: 2.5,
+        complete: next
+    });
+
+    function next() {
+        if (bCheck) {
+            let tileset = Cesium.createOsmBuildings();
+            tileset.readyPromise.then(function (tileset) {
+                viewer.scene.primitives.add(tileset);
+            });
+            $("#topMenu").show();
+        } else {
+            viewer.scene.primitives.removeAll();
+            $("#mainMenu").show();
+        }
+    }
+}
+
+//////// 지구 자전
 function icrf(scene, time) {
     if (scene.mode !== Cesium.SceneMode.SCENE3D) {
         return;
@@ -104,33 +119,17 @@ function icrf(scene, time) {
 }
 
 function earthRotate(bCheck) {
-    viewer.scene.postUpdate.addEventListener(icrf);
     viewer.clock.multiplier = 4800;
-    viewer.clock.shouldAnimate = bCheck;
     viewer.clock.currentTime = new Cesium.JulianDate.fromIso8601("2021-09-01T14:00:00+09:00");
-    viewer.scene.globe.enableLighting = true;
+    viewer.clock.shouldAnimate = bCheck;
+    // viewer.scene.globe.enableLighting = bCheck;
+    viewer.scene.screenSpaceCameraController.enableZoom = !bCheck;
 
-    // 메인 화면 마우스 줌 방지
-    viewer.scene.screenSpaceCameraController.enableZoom = false;
-}
-
-//////// 메인 화면에서 지구로 진입
-function enterTheEarth() {
-    viewer.camera.flyTo({
-        destination: new Cesium.Cartesian3.fromDegrees(126.92506486721677, 37.525008965586515, 4000),
-        duration: 2.5,
-        complete: loadNext
-    });
-
-    function loadNext() {
-        // OSM 건물 추가
-        let tileset = Cesium.createOsmBuildings();
-        tileset.readyPromise.then(function (tileset) {
-            viewer.scene.primitives.add(tileset);
-        });
-    
-        // 상단 메뉴 show
-        $("#topMenu").show();
+    if (bCheck == true) {
+        viewer.scene.postUpdate.addEventListener(icrf);
+    } else {
+        viewer.scene.postUpdate.removeEventListener(icrf);
+        viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
     }
 }
 
