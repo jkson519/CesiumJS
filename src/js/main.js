@@ -30,6 +30,8 @@ document.addEventListener("DOMContentLoaded", function () {
     //         document.querySelector('#lonlat').innerText = longitudeString + ', ' + latitudeString;
     //     }
     // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+    ////// 카메라에서 ray 쏴서 ray intersection 판별 후 해당 위치 뽑아내는 기능 필요 - 크로스헤어 연결기능
 });
 
 //////// viewer 설정
@@ -149,7 +151,7 @@ function earthRotate(bCheck) {
 //     viewer.camera.flyTo({
 //         destination: calcDestination(car, dir, 3500),
 //         orientation: {
-//             direction: new Cesium.Cartesian3(0.5499906479789742, -0.7370889485018234, -0.39269602637682044),
+//             direction: dir,
 //             up: new Cesium.Cartesian3(0.22606498001937553, -0.3212568483490482, 0.9196133221075454),
 //         },
 //         duration: 3.0,

@@ -62,6 +62,22 @@ select, input[type="date"] {
 	overflow: hidden;
 }
 
+#crossHair {
+	display: grid;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 30px;
+	height: 30px;
+}
+
+#crossHairImg {
+	position: absolute;
+	width: 30px;
+	-webkit-user-drag: none;
+}
+
 #greeting, #enter, #aboutMe {
 	position: absolute;
 	color: white;
@@ -73,12 +89,6 @@ select, input[type="date"] {
 	user-select: none;
 }
 
-#enter, #aboutMe {
-	opacity: 0.5;
-	font-size: 2.5vw;
-	cursor: pointer;
-}
-
 #greeting {
 	top: 35%;
 	left: 50%;
@@ -86,6 +96,13 @@ select, input[type="date"] {
 	font-size: 3vw;
 	cursor: default;
 }
+
+#enter, #aboutMe {
+	opacity: 0.5;
+	font-size: 2.5vw;
+	cursor: pointer;
+}
+
 
 #enter {
 	top: 60%;
