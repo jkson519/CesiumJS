@@ -53,6 +53,10 @@ select, input[type="date"] {
 	border: 1px solid #999;
 }
 
+button {
+	font-family: "Noto Sans KR";
+}
+
 #mapContainer {
 	position: absolute;
 	width: 100%;
@@ -62,7 +66,7 @@ select, input[type="date"] {
 	overflow: hidden;
 }
 
-#crossHair {
+/* #crossHair {
 	display: grid;
 	position: absolute;
 	top: 50%;
@@ -76,7 +80,7 @@ select, input[type="date"] {
 	position: absolute;
 	width: 30px;
 	-webkit-user-drag: none;
-}
+} */
 
 #greeting, #enter, #aboutMe {
 	position: absolute;
