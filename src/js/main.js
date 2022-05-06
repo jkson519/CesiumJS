@@ -1,3 +1,5 @@
+Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2OTdmMjdmYi1mYTU3LTRjYzktOGUyZS1iYWI2MjgxZTc3NGQiLCJpZCI6ODI0MTUsImlhdCI6MTY0NDgyOTcxOH0.DWmUXI3KNi6Or9vfAb467Ix3yaxu1aJ9V4_EFkCAGSg';
+
 let viewer;
 
 document.addEventListener("DOMContentLoaded", function () {
